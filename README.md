@@ -7,19 +7,28 @@ Documentation
 -------------
 ## Get
 
+#### sample configuration
+```js
+{
+  "username": "taylor@openfn.org",
+  "password": "supersecret",
+  "baseUrl": "https://instance_name.surveycto.com",
+  "authType": "digest"
+}
+```
+
 #### sample GET expression
 ```js
-get(
+fetch(
   fields(
-    field("endpoint", "patient_records"),
+    field("endpoint", "api/v1/forms/data/wide/json/mod_coach"),
     field("query", function(state) {
-      var params = {
-        date: dataValue("prop_a")(state)
-      }
-      return params
-    })
+      return { date: 1463617524000 }
+    }),
+    field("returnUrl", "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab")
   )
 )
+
 ```
 
 [Docs](docs/index)
