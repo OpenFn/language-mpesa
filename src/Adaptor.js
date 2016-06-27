@@ -42,7 +42,7 @@ export function fetch(params) {
 
   return state => {
 
-    const { endpoint, query, destination } = expandReferences(params)(state);
+    const { endpoint, query, returnUrl } = expandReferences(params)(state);
 
     const { username, password, baseUrl, authType } = state.configuration;
 
@@ -51,12 +51,11 @@ export function fetch(params) {
     const url = resolveUrl(baseUrl + '/', endpoint)
 
     // TODO: @Stuartc, what's the best way to set the inbox of the user?
-    const home = 'http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab'
 
     console.log("Fetching data from URL: " + url);
     console.log("Applying query: " + JSON.stringify(query))
 
-    return getThenPost({ username, password, query, url, sendImmediately, home })
+    return getThenPost({ username, password, query, url, sendImmediately, returnUrl })
     .then((result) => {
       console.log("Success:", result);
       return { ...state, references: [ result, ...state.references ] }

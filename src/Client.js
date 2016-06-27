@@ -1,6 +1,6 @@
 import request from 'request'
 
-export function getThenPost({ username, password, query, url, sendImmediately, home }) {
+export function getThenPost({ username, password, query, url, sendImmediately, returnUrl }) {
   return new Promise((resolve, reject) => {
 
     request({
@@ -17,7 +17,7 @@ export function getThenPost({ username, password, query, url, sendImmediately, h
         console.log(error);
       } else {
         request.post ({
-          url: home,
+          url: returnUrl,
           json: JSON.parse(body)
         }, function(error, response, body){
           if(error) {
