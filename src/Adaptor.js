@@ -1,5 +1,5 @@
 import { execute as commonExecute, expandReferences } from 'language-common';
-import { post } from './Client';
+import { getThenPost } from './Client';
 import { resolve as resolveUrl } from 'url';
 
 /** @module Adaptor */
@@ -32,27 +32,31 @@ export function execute(...operations) {
  * Make a GET request
  * @example
  * execute(
- *   get(data)
+ *   fetch(params)
  * )(state)
  * @constructor
- * @param {object} getParams - params for the GET request
+ * @param {object} params - data to make the fetch
  * @returns {Operation}
  */
-export function get(getParams) {
+export function fetch(params) {
 
   return state => {
-    const body = expandReferences(getParams)(state);
 
-    const { username, password, apiUrl } = state.configuration;
+    const { endpoint, query, destination } = expandReferences(params)(state);
 
-    const url = resolveUrl(apiUrl + '/', body.endpoint)
+    const { username, password, baseUrl, authType } = state.configuration;
 
-    console.log("Making GET to url:");
-    console.log(url)
-    console.log("With params:")
-    console.log(body.params)
+    var sendImmediately = authType == 'digest' ? false : true;
 
-    return post({ username, password, body, url })
+    const url = resolveUrl(baseUrl + '/', endpoint)
+
+    // TODO: @Stuartc, what's the best way to set the inbox of the user?
+    const home = 'http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab'
+
+    console.log("Fetching data from URL: " + url);
+    console.log("Applying query: " + JSON.stringify(query))
+
+    return getThenPost({ username, password, query, url, sendImmediately, home })
     .then((result) => {
       console.log("Success:", result);
       return { ...state, references: [ result, ...state.references ] }

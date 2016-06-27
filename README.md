@@ -12,12 +12,11 @@ Documentation
 get(
   fields(
     field("endpoint", "patient_records"),
-    field("params", function(state) {
-      return [
-        dataElement("qrur9Dvnyt5", dataValue("prop_a"))(state)
-        dataElement("oZg33kd9taw", dataValue("prop_b"))(state)
-        dataElement("msodh3rEMJa", dataValue("prop_c"))(state)
-      ]
+    field("query", function(state) {
+      var params = {
+        date: dataValue("prop_a")(state)
+      }
+      return params
     })
   )
 )
