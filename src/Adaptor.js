@@ -42,18 +42,18 @@ export function fetch(params) {
 
   return state => {
 
-    const { endpoint, query, returnUrl } = expandReferences(params)(state);
+    const { getEndpoint, query, postUrl } = expandReferences(params)(state);
 
     const { username, password, baseUrl, authType } = state.configuration;
 
     var sendImmediately = authType == 'digest' ? false : true;
 
-    const url = resolveUrl(baseUrl + '/', endpoint)
+    const url = resolveUrl(baseUrl + '/', getEndpoint)
 
     console.log("Fetching data from URL: " + url);
     console.log("Applying query: " + JSON.stringify(query))
 
-    return getThenPost({ username, password, query, url, sendImmediately, returnUrl })
+    return getThenPost({ username, password, query, url, sendImmediately, postUrl })
     .then((result) => {
       console.log("Success:", result);
       return { ...state, references: [ result, ...state.references ] }

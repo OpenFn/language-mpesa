@@ -5,7 +5,7 @@ Language Pack for building expressions and operations to make HTTP calls.
 
 Documentation
 -------------
-## Get
+## Fetch
 
 #### sample configuration
 ```js
@@ -20,11 +20,11 @@ Documentation
 #### sample fetch expression
 ```js
 fetch({
-  "endpoint": "api/v1/forms/data/wide/json/mod_coach",
-  "query": {
-    date: 1463617524000
+  "getEndpoint": "api/v1/forms/data/wide/json/mod_coach",
+  "query": function(state) {
+      return { "date": dataValue("_json[(@.length-1)].SubmissionDate")(state) }
   },
-  "returnUrl": "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab"
+  "postUrl": "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab",
 })
 ```
 
