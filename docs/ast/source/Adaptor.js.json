@@ -265,7 +265,7 @@
       "trailingComments": [
         {
           "type": "Block",
-          "value": "*\n * Default adaptor for h2tp.\n * @namespace Adaptor\n ",
+          "value": "*\n * Default adaptor for http.\n * @namespace Adaptor\n ",
           "start": 139,
           "end": 198,
           "loc": {
@@ -285,7 +285,7 @@
         },
         {
           "type": "Block",
-          "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for h2tp.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
+          "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for http.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
           "start": 200,
           "end": 540,
           "loc": {
@@ -821,7 +821,7 @@
         "leadingComments": [
           {
             "type": "Block",
-            "value": "*\n * Default adaptor for h2tp.\n * @namespace Adaptor\n ",
+            "value": "*\n * Default adaptor for http.\n * @namespace Adaptor\n ",
             "start": 139,
             "end": 198,
             "loc": {
@@ -841,7 +841,7 @@
           },
           {
             "type": "Block",
-            "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for h2tp.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
+            "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for http.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
             "start": 200,
             "end": 540,
             "loc": {
@@ -888,7 +888,7 @@
       "leadingComments": [
         {
           "type": "Block",
-          "value": "*\n * Default adaptor for h2tp.\n * @namespace Adaptor\n ",
+          "value": "*\n * Default adaptor for http.\n * @namespace Adaptor\n ",
           "start": 139,
           "end": 198,
           "loc": {
@@ -908,7 +908,7 @@
         },
         {
           "type": "Block",
-          "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for h2tp.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
+          "value": "*\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for http.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n ",
           "start": 200,
           "end": 540,
           "loc": {

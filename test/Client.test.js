@@ -16,11 +16,11 @@ describe("Client", () => {
 
   describe("post", () => {
 
-    it("sends a payload to h2tp", () => {
+    it("sends a payload to http", () => {
       let body = fixtures.event.requestBody;
       let username = 'admin';
       let password = 'district';
-      let url = 'https://play.h2tp.org/demo/api/events';
+      let url = 'https://play.http.org/demo/api/events';
 
       return post({ body, username, password, url }).then((result) => {
         expect(result.body).to.eql(fixtures.event.responseBody)

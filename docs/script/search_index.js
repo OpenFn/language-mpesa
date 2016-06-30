@@ -1,20 +1,20 @@
 window.esdocSearchIndex = [
   [
-    "language-h2tp/src/adaptor.js~event",
+    "language-http/src/adaptor.js~event",
     "function/index.html#static-function-event",
-    "<span>event</span> <span class=\"search-result-import-path\">language-h2tp/src/Adaptor.js</span>",
+    "<span>event</span> <span class=\"search-result-import-path\">language-http/src/Adaptor.js</span>",
     "function"
   ],
   [
-    "language-h2tp/src/adaptor.js~execute",
+    "language-http/src/adaptor.js~execute",
     "function/index.html#static-function-execute",
-    "<span>execute</span> <span class=\"search-result-import-path\">language-h2tp/src/Adaptor.js</span>",
+    "<span>execute</span> <span class=\"search-result-import-path\">language-http/src/Adaptor.js</span>",
     "function"
   ],
   [
-    "language-h2tp/src/client.js~post",
+    "language-http/src/client.js~post",
     "function/index.html#static-function-post",
-    "<span>post</span> <span class=\"search-result-import-path\">language-h2tp/src/Client.js</span>",
+    "<span>post</span> <span class=\"search-result-import-path\">language-http/src/Client.js</span>",
     "function"
   ],
   [

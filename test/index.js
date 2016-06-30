@@ -54,7 +54,7 @@ describe("event", () => {
       configuration: {
         username: "hello",
         password: "there",
-        apiUrl: 'https://play.h2tp.org/demo'
+        apiUrl: 'https://play.http.org/demo'
       }
     };
 

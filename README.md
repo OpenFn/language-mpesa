@@ -1,4 +1,4 @@
-Language h2tp
+Language http
 ==============
 
 Language Pack for building expressions and operations to make HTTP calls.
@@ -19,16 +19,13 @@ Documentation
 
 #### sample GET expression
 ```js
-fetch(
-  fields(
-    field("endpoint", "api/v1/forms/data/wide/json/mod_coach"),
-    field("query", function(state) {
-      return { date: 1463617524000 }
-    }),
-    field("returnUrl", "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab")
-  )
-)
-
+fetch({
+  "endpoint": "api/v1/forms/data/wide/json/mod_coach",
+  "query": {
+    date: 1463617524000
+  },
+  "returnUrl": "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab"
+})
 ```
 
 [Docs](docs/index)

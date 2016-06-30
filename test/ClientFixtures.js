@@ -18,7 +18,7 @@ const fixtures = {
     },
     responseBody: {
       "httpStatus":"OK",
-      "httpStatusCode":200,"status":"OK","message":"Import was successful.","response":{"responseType":"ImportSummaries","imported":3,"updated":0,"deleted":0,"ignored":0,"importSummaries":[{"responseType":"ImportSummary","status":"SUCCESS","importCount":{"imported":3,"updated":0,"ignored":0,"deleted":0},"reference":"rrPOYH80oqG","href":"https://play.h2tp.org/demo/api/events/rrPOYH80oqG"}]}}
+      "httpStatusCode":200,"status":"OK","message":"Import was successful.","response":{"responseType":"ImportSummaries","imported":3,"updated":0,"deleted":0,"ignored":0,"importSummaries":[{"responseType":"ImportSummary","status":"SUCCESS","importCount":{"imported":3,"updated":0,"ignored":0,"deleted":0},"reference":"rrPOYH80oqG","href":"https://play.http.org/demo/api/events/rrPOYH80oqG"}]}}
 
 
   }
@@ -27,7 +27,7 @@ const fixtures = {
 export { fixtures };
 
 export default [ {
-  pattern: 'https://play.h2tp.org/demo(.*)',
+  pattern: 'https://play.http.org/demo(.*)',
 
   fixtures( match, params, headers ) {
     if( match[1] === '/api/events' ) {

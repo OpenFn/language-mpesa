@@ -1,7 +1,7 @@
 {
-  "name": "language-h2tp",
+  "name": "language-http",
   "version": "0.0.1",
-  "description": "h2tp Language Pack for OpenFn",
+  "description": "http Language Pack for OpenFn",
   "main": "lib/index.js",
   "scripts": {
     "build": "make",

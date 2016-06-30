@@ -1,5 +1,5 @@
 {
-  "name": "language-h2tp",
+  "name": "language-http",
   "version": "0.0.2",
   "description": "An HTTP Language Pack for OpenFn",
   "main": "lib/index.js",

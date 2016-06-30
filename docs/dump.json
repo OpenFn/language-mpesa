@@ -10,7 +10,7 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import { execute as commonExecute } from 'language-common';\nimport { post } from './Client';\nimport { resolve as resolveUrl } from 'url';\n\n/**\n * Default adaptor for h2tp.\n * @namespace Adaptor\n */\n\n/**\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for h2tp.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n */\nexport function execute(...operations) {\n  const initialState = {\n    references: [],\n    data: null\n  }\n\n  return state => {\n    return commonExecute(...operations)({ ...initialState, ...state })\n  };\n\n}\n\n/**\n * Create an event\n * @example \n * execute(\n *   event(data)\n * )(state)\n * @constructor\n * @param {object} eventData - Payload data for the event\n * @returns {Operation}\n */\nexport function event(eventData) {\n  const body = eventData;\n\n  return state => {\n    const { username, password, api } = state.configuration.credentials;\n\n    const url = resolveUrl(api + '/', 'api/events')\n\n    return post({ username, password, body, url })\n    .then((result) => {\n      return { ...state, references: [ result, ...state.references ] }\n    })\n\n  }\n}\n\n"
+    "content": "import { execute as commonExecute } from 'language-common';\nimport { post } from './Client';\nimport { resolve as resolveUrl } from 'url';\n\n/**\n * Default adaptor for http.\n * @namespace Adaptor\n */\n\n/**\n * Execute a sequence of operations.\n * Wraps `language-common/execute`, and prepends initial state for http.\n * @function execute\n * @memberof Adaptor\n * @example \n * execute(\n *   create('foo'),\n *   delete('bar')\n * )(state)\n * @constructor\n * @param {Operations} operations - Operations to be performed.\n * @returns {Operation}\n */\nexport function execute(...operations) {\n  const initialState = {\n    references: [],\n    data: null\n  }\n\n  return state => {\n    return commonExecute(...operations)({ ...initialState, ...state })\n  };\n\n}\n\n/**\n * Create an event\n * @example \n * execute(\n *   event(data)\n * )(state)\n * @constructor\n * @param {object} eventData - Payload data for the event\n * @returns {Operation}\n */\nexport function event(eventData) {\n  const body = eventData;\n\n  return state => {\n    const { username, password, api } = state.configuration.credentials;\n\n    const url = resolveUrl(api + '/', 'api/events')\n\n    return post({ username, password, body, url })\n    .then((result) => {\n      return { ...state, references: [ result, ...state.references ] }\n    })\n\n  }\n}\n\n"
   },
   {
     "__docId__": 1,
@@ -22,9 +22,9 @@
     "longname": "src/Adaptor.js~execute",
     "access": null,
     "export": true,
-    "importPath": "language-h2tp/src/Adaptor.js",
+    "importPath": "language-http/src/Adaptor.js",
     "importStyle": "{execute}",
-    "description": "Execute a sequence of operations.\nWraps `language-common/execute`, and prepends initial state for h2tp.",
+    "description": "Execute a sequence of operations.\nWraps `language-common/execute`, and prepends initial state for http.",
     "examples": [
       "execute(\n  create('foo'),\n  delete('bar')\n)(state)"
     ],
@@ -79,7 +79,7 @@
     "longname": "src/Adaptor.js~event",
     "access": null,
     "export": true,
-    "importPath": "language-h2tp/src/Adaptor.js",
+    "importPath": "language-http/src/Adaptor.js",
     "importStyle": "{event}",
     "description": "Create an event",
     "examples": [
@@ -141,7 +141,7 @@
     "longname": "src/Client.js~post",
     "access": null,
     "export": true,
-    "importPath": "language-h2tp/src/Client.js",
+    "importPath": "language-http/src/Client.js",
     "importStyle": "{post}",
     "description": null,
     "lineNumber": 3,
