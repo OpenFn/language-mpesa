@@ -1,5 +1,5 @@
-Language http
-==============
+Language HTTP
+=============
 
 Language Pack for building expressions and operations to make HTTP calls.
 
@@ -17,7 +17,7 @@ Documentation
 }
 ```
 
-#### sample GET expression
+#### sample fetch expression
 ```js
 fetch({
   "endpoint": "api/v1/forms/data/wide/json/mod_coach",

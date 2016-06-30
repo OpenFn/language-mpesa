@@ -29,7 +29,7 @@ export function execute(...operations) {
 }
 
 /**
- * Make a GET request
+ * Make a GET request and POST it somewhere else
  * @example
  * execute(
  *   fetch(params)
@@ -49,8 +49,6 @@ export function fetch(params) {
     var sendImmediately = authType == 'digest' ? false : true;
 
     const url = resolveUrl(baseUrl + '/', endpoint)
-
-    // TODO: @Stuartc, what's the best way to set the inbox of the user?
 
     console.log("Fetching data from URL: " + url);
     console.log("Applying query: " + JSON.stringify(query))
