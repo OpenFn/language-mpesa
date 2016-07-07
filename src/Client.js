@@ -1,5 +1,20 @@
 import request from 'request'
 
+export function clientPost({ username, password, body, url }) {
+  return new Promise((resolve, reject) => {
+    request.post ({
+      url: url,
+      json: body
+    }, function(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        console.log("Posted successfully.")
+      }
+    })
+  })
+}
+
 export function getThenPost({ username, password, query, url, sendImmediately, postUrl }) {
   return new Promise((resolve, reject) => {
 
