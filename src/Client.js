@@ -7,9 +7,10 @@ export function clientPost({ username, password, body, url }) {
       json: body
     }, function(error, response, body){
       if(error) {
-        console.log(error);
+        reject(error);
       } else {
-        console.log("Posted successfully.")
+        console.log("POST succeeded.");
+        resolve(body);
       }
     })
   })
@@ -27,19 +28,24 @@ export function getThenPost({ username, password, query, url, sendImmediately, p
         'pass': password,
         'sendImmediately': sendImmediately
       }
-    }, function(error, response, body){
-      if(error) {
-        console.log(error);
+    }, function(error, response, getResponseBody){
+      if ([200,201,202].indexOf(response.statusCode) == -1 || error) {
+        console.log("GET failed.");
+        // TODO: construct a useful error message, request returns a blank
+        // error when the server responds, and the response object is massive
+        // and unserializable.
+        reject(error);
       } else {
+        console.log("GET succeeded.");
         request.post ({
           url: postUrl,
-          json: JSON.parse(body)
-        }, function(error, response, body){
+          json: JSON.parse(getResponseBody)
+        }, function(error, response, postResponseBody){
           if(error) {
-            console.log(error);
+            reject(error);
           } else {
-            console.log("Fido fetched successfully.")
-            console.log("*wags tail*")
+            console.log("POST succeeded.");
+            resolve(getResponseBody);
           }
         })
       }

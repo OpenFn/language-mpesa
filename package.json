@@ -1,6 +1,6 @@
 {
   "name": "language-http",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An HTTP Language Pack for OpenFn",
   "main": "lib/index.js",
   "scripts": {
@@ -14,11 +14,8 @@
     "lib/"
   ],
   "dependencies": {
-    "JSONPath": "^0.10.0",
     "language-common": "github:openfn/language-common",
-    "lodash-fp": "^0.10.2",
-    "request": "^2.72.0",
-    "superagent": "^1.7.2"
+    "request": "^2.72.0"
   },
   "devDependencies": {
     "assertion-error": "^1.0.1",
