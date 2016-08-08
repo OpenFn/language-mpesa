@@ -54,8 +54,9 @@ export function fetch(params) {
     console.log("Applying query: " + JSON.stringify(query))
 
     return getThenPost({ username, password, query, url, sendImmediately, postUrl })
-    .then((result) => {
-      console.log("Success:", result);
+    .then((response) => {
+      console.log("Success:", response);
+      let result = (typeof response === 'object') ? response : JSON.parse(response);
       return { ...state, references: [ result, ...state.references ] }
     })
 
