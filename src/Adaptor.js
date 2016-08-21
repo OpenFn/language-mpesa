@@ -98,6 +98,6 @@ export function post(params) {
 }
 
 export {
-  field, fields, sourceValue, fields,
+  field, fields, sourceValue, fields, alterState,
   merge, dataPath, dataValue, lastReferenceValue
 } from 'language-common';
