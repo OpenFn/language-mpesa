@@ -42,5 +42,9 @@ export default [ {
 
   post(match, data) {
     return { ok: true, match, ...data }
+  },
+
+  get(match, data) {
+    return { ok: true, match, ...data }
   }
 } ]

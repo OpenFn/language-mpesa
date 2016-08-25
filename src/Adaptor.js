@@ -1,5 +1,6 @@
 import { execute as commonExecute, expandReferences } from 'language-common';
 import { getThenPost, clientPost } from './Client';
+import request from 'request'
 import { resolve as resolveUrl } from 'url';
 
 /** @module Adaptor */
@@ -94,6 +95,58 @@ export function post(params) {
       return { ...state, references: [ result, ...state.references ] }
     })
 
+  }
+} 
+
+/**
+ * Make a GET request
+ * @example
+ * execute(
+ *   get("my/endpoint", {
+ *     callback: function(data, state) {
+ *       return state;
+ *     }
+ *   })
+ * )(state)
+ * @constructor
+ * @param {string} url - Path to resource
+ * @param {object} params - callback and query parameters
+ * @returns {Operation}
+ */
+export function get(path, { callback, query={} }) {
+  function isError({ response, error }) {
+    return ([200,201,202].indexOf(response.statusCode) == -1 || !!error) 
+  }
+
+  return state => {
+
+    const { username, password, baseUrl, authType } = state.configuration;
+
+    const sendImmediately = (authType == 'digest');
+
+    const url = resolveUrl(baseUrl + '/', path)
+
+    return new Promise((resolve, reject) => {
+
+      request({
+        url,      //URL to hit
+        qs: query,     //Query string data
+        method: 'GET', //Specify the method
+        auth: {
+          'user': username,
+          'pass': password,
+          'sendImmediately': sendImmediately
+        }
+      }, function(error, response, getResponseBody){
+        if ( isError({error, response}) ) {
+          reject(error);
+        } else {
+          resolve(JSON.parse(getResponseBody))
+        }
+      });
+    }).then((data) => {
+      return callback(data, state)
+    })
   }
 }
 
