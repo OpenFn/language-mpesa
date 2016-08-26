@@ -74,25 +74,26 @@ export function fetch(params) {
  * @param {object} params - data to make the POST
  * @returns {Operation}
  */
-export function post(params) {
+export function post(url, {body, callback}) {
 
   return state => {
 
-    const { endpoint, body } = expandReferences(params)(state);
-
-    const { username, password, baseUrl, authType } = state.configuration;
-
-    var sendImmediately = authType == 'digest' ? false : true;
-
-    const url = resolveUrl(baseUrl + '/', endpoint)
-
-    console.log("Posting data to URL: " + url);
-    console.log("Body: " + JSON.stringify(body))
-
-    return clientPost({ username, password, body, url, sendImmediately })
-    .then((result) => {
-      console.log("Success:", result);
-      return { ...state, references: [ result, ...state.references ] }
+    return new Promise((resolve, reject) => {
+      request.post ({
+        url: url,
+        json: body
+      }, function(error, response, body){
+        if(error) {
+          reject(error);
+        } else {
+          console.log("POST succeeded.");
+          resolve(body);
+        }
+      })
+    }).then((data) => {
+      const nextState = { ...state, response: { body: data } };
+      if (callback) return callback(nextState);
+      return nextState;
     })
 
   }
@@ -113,7 +114,7 @@ export function post(params) {
  * @param {object} params - callback and query parameters
  * @returns {Operation}
  */
-export function get(path, { callback, query={} }) {
+export function get(path, {query, callback}) {
   function isError({ response, error }) {
     return ([200,201,202].indexOf(response.statusCode) == -1 || !!error) 
   }
@@ -121,8 +122,9 @@ export function get(path, { callback, query={} }) {
   return state => {
 
     const { username, password, baseUrl, authType } = state.configuration;
+    const { query: qs } = expandReferences({query})(state);
 
-    const sendImmediately = (authType == 'digest');
+    const sendImmediately = (authType != 'digest');
 
     const url = resolveUrl(baseUrl + '/', path)
 
@@ -130,22 +132,25 @@ export function get(path, { callback, query={} }) {
 
       request({
         url,      //URL to hit
-        qs: query,     //Query string data
+        qs,     //Query string data
         method: 'GET', //Specify the method
         auth: {
           'user': username,
           'pass': password,
           'sendImmediately': sendImmediately
         }
-      }, function(error, response, getResponseBody){
+      }, function(error, response, body){
         if ( isError({error, response}) ) {
           reject(error);
         } else {
-          resolve(JSON.parse(getResponseBody))
+          resolve(JSON.parse(body))
         }
       });
+
     }).then((data) => {
-      return callback(data, state)
+      const nextState = { ...state, response: { body: data } };
+      if (callback) return callback(nextState);
+      return nextState;
     })
   }
 }
