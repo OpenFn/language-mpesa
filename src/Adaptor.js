@@ -115,8 +115,11 @@ export function post(url, {body, callback}) {
  * @returns {Operation}
  */
 export function get(path, {query, callback}) {
-  function isError({ response, error }) {
-    return ([200,201,202].indexOf(response.statusCode) == -1 || !!error) 
+  function assembleError({ response, error }) {
+    if ([200,201,202].indexOf(response.statusCode) > -1) return false;
+    if (error) return error;
+
+    return new Error(`Server responded with ${response.statusCode}`)
   }
 
   return state => {
@@ -140,7 +143,8 @@ export function get(path, {query, callback}) {
           'sendImmediately': sendImmediately
         }
       }, function(error, response, body){
-        if ( isError({error, response}) ) {
+        error = assembleError({error, response})
+        if (error) {
           reject(error);
         } else {
           resolve(JSON.parse(body))
