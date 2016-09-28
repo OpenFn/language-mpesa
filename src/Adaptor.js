@@ -74,14 +74,15 @@ export function fetch(params) {
  * @param {object} params - data to make the POST
  * @returns {Operation}
  */
-export function post(url, {body, callback}) {
+export function post(url, {body, callback, headers}) {
 
   return state => {
 
     return new Promise((resolve, reject) => {
       request.post ({
         url: url,
-        json: body
+        json: body,
+        headers
       }, function(error, response, body){
         if(error) {
           reject(error);
@@ -97,7 +98,7 @@ export function post(url, {body, callback}) {
     })
 
   }
-} 
+}
 
 /**
  * Make a GET request
