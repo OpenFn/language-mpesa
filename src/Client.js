@@ -17,6 +17,13 @@ export function clientPost({ username, password, body, url }) {
 }
 
 export function getThenPost({ username, password, query, url, sendImmediately, postUrl }) {
+
+  function assembleError({ response, error }) {
+    if (response && ([200,201,202].indexOf(response.statusCode) > -1)) return false;
+    if (error) return error;
+    return new Error(`Server responded with ${response.statusCode}`)
+  }
+
   return new Promise((resolve, reject) => {
 
     request({
@@ -29,19 +36,20 @@ export function getThenPost({ username, password, query, url, sendImmediately, p
         'sendImmediately': sendImmediately
       }
     }, function(error, response, getResponseBody){
-      if ([200,201,202].indexOf(response.statusCode) == -1 || error) {
-        console.log("GET failed.");
-        // TODO: construct a useful error message, request returns a blank
-        // error when the server responds, and the response object is massive
-        // and unserializable.
+      error = assembleError({error, response})
+      if (error) {
+        console.error("GET failed.")        
         reject(error);
       } else {
         console.log("GET succeeded.");
+        console.log(getResponseBody)
         request.post ({
           url: postUrl,
           json: JSON.parse(getResponseBody)
         }, function(error, response, postResponseBody){
-          if(error) {
+          error = assembleError({error, response})
+          if (error) {
+            console.error("POST failed.")
             reject(error);
           } else {
             console.log("POST succeeded.");
