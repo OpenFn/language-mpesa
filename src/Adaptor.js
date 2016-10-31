@@ -59,6 +59,10 @@ export function fetch(params) {
       console.log("Success:", response);
       let result = (typeof response === 'object') ? response : JSON.parse(response);
       return { ...state, references: [ result, ...state.references ] }
+    }).then((data) => {
+      const nextState = { ...state, response: { body: data } };
+      if (callback) return callback(nextState);
+      return nextState;
     })
 
   }

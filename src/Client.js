@@ -38,10 +38,12 @@ export function getThenPost({ username, password, query, url, sendImmediately, p
     }, function(error, response, getResponseBody){
       error = assembleError({error, response})
       if (error) {
-        console.error("GET failed.")        
+        console.error("GET failed.")
+        console.log(response)
         reject(error);
       } else {
         console.log("GET succeeded.");
+        console.log(response)
         console.log(getResponseBody)
         request.post ({
           url: postUrl,
