@@ -28,6 +28,40 @@ fetch({
 })
 ```
 
+#### sample custom GET and then POST
+```js
+get("forms/data/wide/json/form_id", {
+  query: function(state) {
+    return { date: state.lastSubmissionDate || "Aug 29, 2016 4:44:26 PM"}
+  },
+  callback: function(state) {
+    // Pick submissions out in order to avoid `post` overwriting `response`.
+    var submissions = state.response.body;
+    // return submissions
+    return submissions.reduce(function(acc, item) {
+        // tag submissions as part of the "form_id" form
+        item.formId = "form_id"
+        return acc.then(
+          post(
+            "https://www.openfn.org/inbox/very-very-secret",
+            { body: item }
+          )
+        )
+      }, Promise.resolve(state))
+      .then(function(state) {
+        if (submissions.length) {
+          state.lastSubmissionDate = submissions[submissions.length-1].SubmissionDate
+        }
+        return state;
+      })
+      .then(function(state) {
+        delete state.response
+        return state;
+      })
+  }
+})
+```
+
 [Docs](docs/index)
 
 
