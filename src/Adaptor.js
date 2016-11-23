@@ -104,6 +104,43 @@ export function post(url, {body, callback, headers}) {
   }
 }
 
+/*
+* Make a POST request using existing data from another POST
+*/
+
+export function postData(params) {
+
+  return state => {
+
+    const { url, body, headers } = expandReferences(params)(state);
+
+    return new Promise((resolve, reject) => {
+      request.post ({
+        url: url,
+        json: body,
+        headers
+      }, function(error, response, body){
+        if(error) {
+          reject(error);
+        } else {
+          console.log("POST succeeded.");
+          resolve(body);
+        }
+      })
+    }).then((data) => {
+      const nextState = { ...state, response: { body: data } };
+      if (callback) return callback(nextState);
+      return nextState;
+    })
+
+  }
+
+}
+
+
+
+
+
 /**
  * Make a GET request
  * @example
@@ -165,6 +202,6 @@ export function get(path, {query, callback}) {
 }
 
 export {
-  field, fields, sourceValue, fields, alterState,
+  field, fields, sourceValue, alterState,
   merge, dataPath, dataValue, lastReferenceValue
 } from 'language-common';
