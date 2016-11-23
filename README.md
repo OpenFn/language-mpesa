@@ -62,6 +62,26 @@ get("forms/data/wide/json/form_id", {
 })
 ```
 
+### Sample post with existing data
+```js
+postData({
+  url: "INSERT_URL_HERE",
+  "body": function(state) {
+        return {
+          "field_1": "some_data",
+          "field_2": "some_more_data",
+          "field_id": dataValue("Some.Json.Object.Id")(state)
+        }
+
+  },
+  headers: {
+      "Authorization": "AUTH_KEY",
+      "Content-Type": "application/json"
+  }
+})
+
+```
+
 [Docs](docs/index)
 
 
