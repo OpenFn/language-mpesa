@@ -92,10 +92,6 @@ export function fetchWithErrors(params) {
       return new Error(`Server responded with ${response.statusCode}`)
     }
 
-    if (true) {
-
-    }
-
     return new Promise((resolve, reject) => {
 
       request({
