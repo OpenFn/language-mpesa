@@ -115,6 +115,8 @@ export function postData(params) {
     const { url, body, headers } = expandReferences(params)(state);
 
     return new Promise((resolve, reject) => {
+      console.log("Request body:");
+      console.log("\n" + JSON.stringify(body, null, 4) + "\n");
       request.post ({
         url: url,
         json: body,
@@ -123,6 +125,8 @@ export function postData(params) {
         if(error) {
           reject(error);
         } else {
+          console.log("Printing response...\n");
+          console.log(JSON.stringify(response, null, 4) + "\n");
           console.log("POST succeeded.");
           resolve(body);
         }
