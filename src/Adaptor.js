@@ -129,7 +129,6 @@ export function postData(params) {
       })
     }).then((data) => {
       const nextState = { ...state, response: { body: data } };
-      if (callback) return callback(nextState);
       return nextState;
     })
 
