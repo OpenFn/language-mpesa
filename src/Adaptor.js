@@ -268,6 +268,6 @@ export function get(path, {query, callback}) {
 }
 
 export {
-  field, fields, sourceValue, alterState,
+  field, fields, sourceValue, alterState, each,
   merge, dataPath, dataValue, lastReferenceValue
 } from 'language-common';

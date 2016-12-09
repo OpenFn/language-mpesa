@@ -1,6 +1,6 @@
 {
   "name": "language-http",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "An HTTP Language Pack for OpenFn",
   "main": "lib/index.js",
   "scripts": {
