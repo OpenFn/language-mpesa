@@ -175,6 +175,12 @@ export function postData(params) {
 
   return state => {
 
+    function assembleError({ response, error }) {
+      if (response && ([200,201,202].indexOf(response.statusCode) > -1)) return false;
+      if (error) return error;
+      return new Error(`Server responded with ${response.statusCode}`)
+    }
+
     const { url, body, headers } = expandReferences(params)(state);
 
     return new Promise((resolve, reject) => {
@@ -185,8 +191,10 @@ export function postData(params) {
         json: body,
         headers
       }, function(error, response, body){
+        error = assembleError({error, response})
         if(error) {
           reject(error);
+          console.log(response);
         } else {
           console.log("Printing response...\n");
           console.log(JSON.stringify(response, null, 4) + "\n");
