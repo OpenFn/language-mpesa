@@ -68,10 +68,10 @@ describe("get", () => {
       })
     )(state)
     .then((state) => {
-      let lastReference = state.references[0]
+      let responseBody = state.references[0].response.body
 
       // Check that the eventData made it's way to the request as a string.
-      expect(lastReference).
+      expect(responseBody).
         to.eql({foo: 'bar'})
 
     })

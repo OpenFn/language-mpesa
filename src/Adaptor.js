@@ -1,6 +1,6 @@
 import { execute as commonExecute, expandReferences } from 'language-common';
 import { getThenPost, clientPost } from './Client';
-import request from 'request'
+import request from 'request';
 import { resolve as resolveUrl } from 'url';
 
 /** @module Adaptor */
