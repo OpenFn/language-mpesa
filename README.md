@@ -1,12 +1,18 @@
-Language HTTP [![Build Status](https://travis-ci.org/OpenFn/language-http.svg?branch=master)](https://travis-ci.org/OpenFn/language-http)
+Language MPESA [![Build Status](https://travis-ci.org/OpenFn/language-mpesa.svg?branch=master)](https://travis-ci.org/OpenFn/language-mpesa)
 =============
 
-Language Pack for building expressions and operations to make HTTP calls.
+Language Pack for building expressions and operations to interact with Safaricom's MPESA mobile money system.
+
+Plan (wip)
+-------------
+1. add MPESA credentials and give user a button to register this inbox URL.
+2. check inbox for successful registration.
+3. add button on credentials to de-register.
+4. language-mpesa allows posting of payments.
+5. regular inbox allows receipt of confirmation.
 
 Documentation
 -------------
-## Fetch
-
 #### sample configuration
 ```js
 {
@@ -16,74 +22,6 @@ Documentation
   "authType": "digest"
 }
 ```
-
-#### sample fetch expression
-```js
-fetch({
-  "getEndpoint": "api/v1/forms/data/wide/json/mod_coach",
-  "query": function(state) {
-      return { "date": dataValue("_json[(@.length-1)].SubmissionDate")(state) }
-  },
-  "postUrl": "http://localhost:4000/inbox/8ad63a29-5c25-4d8d-ba2c-fe6274dcfbab",
-})
-```
-
-#### sample custom GET and then POST
-```js
-get("forms/data/wide/json/form_id", {
-  query: function(state) {
-    return { date: state.lastSubmissionDate || "Aug 29, 2016 4:44:26 PM"}
-  },
-  callback: function(state) {
-    // Pick submissions out in order to avoid `post` overwriting `response`.
-    var submissions = state.response.body;
-    // return submissions
-    return submissions.reduce(function(acc, item) {
-        // tag submissions as part of the "form_id" form
-        item.formId = "form_id"
-        return acc.then(
-          post(
-            "https://www.openfn.org/inbox/very-very-secret",
-            { body: item }
-          )
-        )
-      }, Promise.resolve(state))
-      .then(function(state) {
-        if (submissions.length) {
-          state.lastSubmissionDate = submissions[submissions.length-1].SubmissionDate
-        }
-        return state;
-      })
-      .then(function(state) {
-        delete state.response
-        return state;
-      })
-  }
-})
-```
-
-### Sample post with existing data
-```js
-postData({
-  url: "INSERT_URL_HERE",
-  "body": function(state) {
-        return {
-          "field_1": "some_data",
-          "field_2": "some_more_data",
-          "field_id": dataValue("Some.Json.Object.Id")(state)
-        }
-
-  },
-  headers: {
-      "Authorization": "AUTH_KEY",
-      "Content-Type": "application/json"
-  }
-})
-
-```
-
-[Docs](docs/index)
-
 
 Development
 -----------

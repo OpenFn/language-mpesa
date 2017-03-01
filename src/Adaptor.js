@@ -1,5 +1,4 @@
 import { execute as commonExecute, expandReferences } from 'language-common';
-import { getThenPost, clientPost } from './Client';
 import request from 'request';
 import { resolve as resolveUrl } from 'url';
 
@@ -27,45 +26,6 @@ export function execute(...operations) {
     return commonExecute(...operations)({ ...initialState, ...state })
   };
 
-}
-
-/**
- * Make a GET request and POST it somewhere else
- * @example
- * execute(
- *   fetch(params)
- * )(state)
- * @constructor
- * @param {object} params - data to make the fetch
- * @returns {Operation}
- */
-export function fetch(params) {
-
-  return state => {
-
-    const { getEndpoint, query, postUrl } = expandReferences(params)(state);
-
-    const { username, password, baseUrl, authType } = state.configuration;
-
-    var sendImmediately = authType == 'digest' ? false : true;
-
-    const url = resolveUrl(baseUrl + '/', getEndpoint)
-
-    console.log("Fetching data from URL: " + url);
-    console.log("Applying query: " + JSON.stringify(query))
-
-    return getThenPost({ username, password, query, url, sendImmediately, postUrl })
-    .then((response) => {
-      console.log("Success:", response);
-      let result = (typeof response === 'object') ? response : JSON.parse(response);
-      return { ...state, references: [ result, ...state.references ] }
-    }).then((data) => {
-      const nextState = { ...state, response: { body: data } };
-      if (callback) return callback(nextState);
-      return nextState;
-    })
-
-  }
 }
 
 /**
