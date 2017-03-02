@@ -1,1 +1,0 @@
-registerListener({a:1});
