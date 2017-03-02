@@ -45,18 +45,42 @@ export function registerListener() {
       mpesaUrl
     } = state.configuration;
 
-    const timeStamp = Date.now();
+    function pad(number) {
+      if (number < 10) {
+        return '0' + number;
+      }
+      return number;
+    }
 
-    // new SHA1 instance and base64 string encoding
-    var SHA256 = new Hashes.SHA256().b64(spid + password + timeStamp)
+    const date = new Date()
+    // Ugly way of getting the YYYYMMDDHHmmSS stamp...
+    const timeStamp = date.toISOString()
+                          .replace(/[.,\/#!TZ$%\^&\*;:{}=\-_`~()]/g,"")
+                          .slice(0, 14);
+
+    console.log('SPID: ' + spid);
+    console.log('Password: ' + password);
+    console.log('TimeStamp: ' + timeStamp);
+    const authString = spid+password+timeStamp;
+    console.log('Pre-encryption auth string: ' + authString);
+
+    // new SHA256 instance and base64 string encoding
+    var SHA256 =  new Hashes.SHA256
+    const crypted = SHA256.hex(authString)
     // output to console
-    console.log('SHA256: ' + SHA256)
+    console.log('SHA256 crypted auth: ' + crypted)
+
+    const base64crypted = new Buffer(crypted).toString('base64');
+    console.log('base64 of the crypted auth: ' + base64crypted);
+
+    // const send = false;
+    const send = true;
 
     const body = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://api-v1.gen.mm.vodafone.com/mminterface/request">
         <soapenv:Header>
             <tns:RequestSOAPHeader xmlns:tns="http://www.huawei.com/schema/osg/common/v2_1">
                 <tns:spId>${spid}</tns:spId>
-                <tns:spPassword>${SHA256}</tns:spPassword>
+                <tns:spPassword>${base64crypted}</tns:spPassword>
                 <tns:timeStamp>${timeStamp}</tns:timeStamp>
                 <tns:serviceId>${serviceId}</tns:serviceId>
             </tns:RequestSOAPHeader>
@@ -66,53 +90,51 @@ export function registerListener() {
                 <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
                 <request xmlns="http://api-v1.gen.mm.vodafone.com/mminterface/request">
                 <Transaction>
-                <CommandID>RegisterURL</CommandID> //Command ID for registering URL
-                <OriginatorConversationID>Reg-266-1126</OriginatorConversationID> //always changes on
+                <CommandID>RegisterURL</CommandID>
+                <OriginatorConversationID>Reg-266-1126</OriginatorConversationID>
                 every new request
                 <Parameters>
                 <Parameter>
-                <Key>ResponseType</Key> //the default response type
-                <Value>Completed</Value> //You can choose between ‘Completed’ and ‘Cancelled’
+                <Key>ResponseType</Key>
+                <Value>Completed</Value>
                 </Parameter>
                 </Parameters>
                 <ReferenceData>
                 <ReferenceItem>
                 <Key>ValidationURL</Key>
-                <Value></Value> //YOUR VALIDATION URL WITH PORT -->
+                <Value>http://10.66.49.201:8099/mock%3C/Value%3E</Value>
                 </ReferenceItem>
                 <ReferenceItem>
                 <Key>ConfirmationURL</Key>
-                <Value>${listenerUrl}</Value> //YOUR CONFIRMATION URL WITH PORT
+                <Value>${listenerUrl}</Value>
                 </ReferenceItem>
                 </ReferenceData>
                 </Transaction>
                 <Identity>
                 <Caller>
-                <CallerType>0</CallerType> //Constant variable,remains the same.
+                <CallerType>0</CallerType>
                 <ThirdPartyID/>
                 <Password/>
                 <CheckSum/>
                 <ResultURL/>
                 </Caller>
                 <Initiator>
-                <IdentifierType>1</IdentifierType> //Constant variable,remains the same
+                <IdentifierType>1</IdentifierType>
                 <Identifier/>
                 <SecurityCredential/>
                 <ShortCode/>
                 </Initiator>
                 <PrimaryParty>
-                <IdentifierType>1</IdentifierType> //Constant variable, remains the same
+                <IdentifierType>1</IdentifierType>
                 <Identifier/>
-                <ShortCode>${shortCode}</ShortCode> //your short code
+                <ShortCode>${shortCode}</ShortCode>
                 </PrimaryParty>
                 </Identity>
-                <KeyOwner>1</KeyOwner> //Constant variable, remains the same.
+                <KeyOwner>1</KeyOwner>
                 </request>]]>
             </req:RequestMsg>
         </soapenv:Body>
     </soapenv:Envelope>`
-
-    const noBreakBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://api-v1.gen.mm.vodafone.com/mminterface/request"><soapenv:Header><tns:RequestSOAPHeader xmlns:tns="http://www.huawei.com/schema/osg/common/v2_1"><tns:spId>${spid}</tns:spId><tns:spPassword>${SHA256}</tns:spPassword><tns:timeStamp>${timeStamp}</tns:timeStamp><tns:serviceId>${serviceId}</tns:serviceId></tns:RequestSOAPHeader></soapenv:Header><soapenv:Body><req:RequestMsg><![CDATA[<?xml version="1.0" encoding="UTF-8"?><request xmlns="http://api-v1.gen.mm.vodafone.com/mminterface/request"><Transaction><CommandID>RegisterURL</CommandID><OriginatorConversationID>Reg-266-1126</OriginatorConversationID><Parameters><Parameter><Key>ResponseType</Key><Value>Completed</Value></Parameter></Parameters><ReferenceData><ReferenceItem><Key>ValidationURL</Key><Value></Value></ReferenceItem><ReferenceItem><Key>ConfirmationURL</Key><Value>${listenerUrl}</Value></ReferenceItem></ReferenceData></Transaction><Identity><Caller><CallerType>0</CallerType><ThirdPartyID/><Password/><CheckSum/><ResultURL/></Caller><Initiator><IdentifierType>1</IdentifierType><Identifier/><SecurityCredential/><ShortCode/></Initiator><PrimaryParty><IdentifierType>1</IdentifierType><Identifier/><ShortCode>${shortCode}</ShortCode></PrimaryParty></Identity><KeyOwner>1</KeyOwner></request>]]></req:RequestMsg></soapenv:Body></soapenv:Envelope>`
 
     function assembleError({ response, error }) {
       if (response && ([200,201,202].indexOf(response.statusCode) > -1)) return false;
@@ -120,12 +142,13 @@ export function registerListener() {
       return new Error(`Server responded with ${response.statusCode}`)
     }
 
+  if (send) {
     return new Promise((resolve, reject) => {
       console.log("Request body:");
-      console.log("\n" + JSON.stringify(noBreakBody, null, 4) + "\n");
+      console.log("\n" + JSON.stringify(body, null, 4) + "\n");
       request.post ({
         url: mpesaUrl,
-        body: noBreakBody
+        body: body
       }, function(error, response, body){
         error = assembleError({error, response})
         if(error) {
@@ -142,6 +165,7 @@ export function registerListener() {
       const nextState = { ...state, response: { body: data } };
       return nextState;
     })
+  }
 
   }
 
