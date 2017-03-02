@@ -3,7 +3,7 @@ Language MPESA [![Build Status](https://travis-ci.org/OpenFn/language-mpesa.svg?
 
 Language Pack for building expressions and operations to interact with Safaricom's MPESA mobile money system.
 
-Plan (wip)
+Plan (wip, to be moved to creds on OpenFn/core)
 -------------
 1. add MPESA credentials and give user a button to register this inbox URL.
 2. check inbox for successful registration.
