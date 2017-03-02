@@ -2,6 +2,7 @@ import { execute as commonExecute, expandReferences } from 'language-common';
 import request from 'request';
 import { resolve as resolveUrl } from 'url';
 import Hashes from 'jshashes';
+import js2xmlparser from 'js2xmlparser';
 
 /** @module Adaptor */
 
@@ -31,23 +32,87 @@ export function execute(...operations) {
 // #############################################################
 // TODO: Move this into the credential setup page on OpenFn/core
 // #############################################################
-export function registerListener(params) {
-
-  // sample string
-  var str = 'This is a sample text!'
-  // new SHA1 instance and base64 string encoding
-  var SHA256 = new Hashes.SHA256().b64(str)
-  // output to console
-  console.log('SHA256: ' + SHA256)
-
-};
-
-/*
-* Make a POST request using existing data from another POST
-*/
-export function postData(params) {
+export function registerListener() {
 
   return state => {
+
+    const {
+      spid,
+      password,
+      serviceId,
+      shortCode,
+      listenerUrl,
+      mpesaUrl
+    } = state.configuration;
+
+    const timeStamp = Date.now();
+
+    // new SHA1 instance and base64 string encoding
+    var SHA256 = new Hashes.SHA256().b64(spid + password + timeStamp)
+    // output to console
+    console.log('SHA256: ' + SHA256)
+
+    const body = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://api-v1.gen.mm.vodafone.com/mminterface/request">
+        <soapenv:Header>
+            <tns:RequestSOAPHeader xmlns:tns="http://www.huawei.com/schema/osg/common/v2_1">
+                <tns:spId>${spid}</tns:spId>
+                <tns:spPassword>${SHA256}</tns:spPassword>
+                <tns:timeStamp>${timeStamp}</tns:timeStamp>
+                <tns:serviceId>${serviceId}</tns:serviceId>
+            </tns:RequestSOAPHeader>
+        </soapenv:Header>
+        <soapenv:Body>
+            <req:RequestMsg>
+                <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+                <request xmlns="http://api-v1.gen.mm.vodafone.com/mminterface/request">
+                <Transaction>
+                <CommandID>RegisterURL</CommandID> //Command ID for registering URL
+                <OriginatorConversationID>Reg-266-1126</OriginatorConversationID> //always changes on
+                every new request
+                <Parameters>
+                <Parameter>
+                <Key>ResponseType</Key> //the default response type
+                <Value>Completed</Value> //You can choose between ‘Completed’ and ‘Cancelled’
+                </Parameter>
+                </Parameters>
+                <ReferenceData>
+                <ReferenceItem>
+                <Key>ValidationURL</Key>
+                <Value></Value> //YOUR VALIDATION URL WITH PORT -->
+                </ReferenceItem>
+                <ReferenceItem>
+                <Key>ConfirmationURL</Key>
+                <Value>${listenerUrl}</Value> //YOUR CONFIRMATION URL WITH PORT
+                </ReferenceItem>
+                </ReferenceData>
+                </Transaction>
+                <Identity>
+                <Caller>
+                <CallerType>0</CallerType> //Constant variable,remains the same.
+                <ThirdPartyID/>
+                <Password/>
+                <CheckSum/>
+                <ResultURL/>
+                </Caller>
+                <Initiator>
+                <IdentifierType>1</IdentifierType> //Constant variable,remains the same
+                <Identifier/>
+                <SecurityCredential/>
+                <ShortCode/>
+                </Initiator>
+                <PrimaryParty>
+                <IdentifierType>1</IdentifierType> //Constant variable, remains the same
+                <Identifier/>
+                <ShortCode>${shortCode}</ShortCode> //your short code
+                </PrimaryParty>
+                </Identity>
+                <KeyOwner>1</KeyOwner> //Constant variable, remains the same.
+                </request>]]>
+            </req:RequestMsg>
+        </soapenv:Body>
+    </soapenv:Envelope>`
+
+    const noBreakBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://api-v1.gen.mm.vodafone.com/mminterface/request"><soapenv:Header><tns:RequestSOAPHeader xmlns:tns="http://www.huawei.com/schema/osg/common/v2_1"><tns:spId>${spid}</tns:spId><tns:spPassword>${SHA256}</tns:spPassword><tns:timeStamp>${timeStamp}</tns:timeStamp><tns:serviceId>${serviceId}</tns:serviceId></tns:RequestSOAPHeader></soapenv:Header><soapenv:Body><req:RequestMsg><![CDATA[<?xml version="1.0" encoding="UTF-8"?><request xmlns="http://api-v1.gen.mm.vodafone.com/mminterface/request"><Transaction><CommandID>RegisterURL</CommandID><OriginatorConversationID>Reg-266-1126</OriginatorConversationID><Parameters><Parameter><Key>ResponseType</Key><Value>Completed</Value></Parameter></Parameters><ReferenceData><ReferenceItem><Key>ValidationURL</Key><Value></Value></ReferenceItem><ReferenceItem><Key>ConfirmationURL</Key><Value>${listenerUrl}</Value></ReferenceItem></ReferenceData></Transaction><Identity><Caller><CallerType>0</CallerType><ThirdPartyID/><Password/><CheckSum/><ResultURL/></Caller><Initiator><IdentifierType>1</IdentifierType><Identifier/><SecurityCredential/><ShortCode/></Initiator><PrimaryParty><IdentifierType>1</IdentifierType><Identifier/><ShortCode>${shortCode}</ShortCode></PrimaryParty></Identity><KeyOwner>1</KeyOwner></request>]]></req:RequestMsg></soapenv:Body></soapenv:Envelope>`
 
     function assembleError({ response, error }) {
       if (response && ([200,201,202].indexOf(response.statusCode) > -1)) return false;
@@ -55,15 +120,12 @@ export function postData(params) {
       return new Error(`Server responded with ${response.statusCode}`)
     }
 
-    const { url, body, headers } = expandReferences(params)(state);
-
     return new Promise((resolve, reject) => {
       console.log("Request body:");
-      console.log("\n" + JSON.stringify(body, null, 4) + "\n");
+      console.log("\n" + JSON.stringify(noBreakBody, null, 4) + "\n");
       request.post ({
-        url: url,
-        json: body,
-        headers
+        url: mpesaUrl,
+        body: noBreakBody
       }, function(error, response, body){
         error = assembleError({error, response})
         if(error) {
@@ -83,71 +145,7 @@ export function postData(params) {
 
   }
 
-}
-
-
-
-
-
-/**
- * Make a GET request
- * @example
- * execute(
- *   get("my/endpoint", {
- *     callback: function(data, state) {
- *       return state;
- *     }
- *   })
- * )(state)
- * @constructor
- * @param {string} url - Path to resource
- * @param {object} params - callback and query parameters
- * @returns {Operation}
- */
-export function get(path, {query, callback}) {
-  function assembleError({ response, error }) {
-    if ([200,201,202].indexOf(response.statusCode) > -1) return false;
-    if (error) return error;
-
-    return new Error(`Server responded with ${response.statusCode}`)
-  }
-
-  return state => {
-
-    const { username, password, baseUrl, authType } = state.configuration;
-    const { query: qs } = expandReferences({query})(state);
-
-    const sendImmediately = (authType != 'digest');
-
-    const url = resolveUrl(baseUrl + '/', path)
-
-    return new Promise((resolve, reject) => {
-
-      request({
-        url,      //URL to hit
-        qs,     //Query string data
-        method: 'GET', //Specify the method
-        auth: {
-          'user': username,
-          'pass': password,
-          'sendImmediately': sendImmediately
-        }
-      }, function(error, response, body){
-        error = assembleError({error, response})
-        if (error) {
-          reject(error);
-        } else {
-          resolve(JSON.parse(body))
-        }
-      });
-
-    }).then((data) => {
-      const nextState = { ...state, response: { body: data } };
-      if (callback) return callback(nextState);
-      return nextState;
-    })
-  }
-}
+};
 
 export {
   field, fields, sourceValue, alterState, each,

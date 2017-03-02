@@ -14,10 +14,10 @@
     "lib/"
   ],
   "dependencies": {
+    "js2xmlparser": "^3.0.0",
     "jshashes": "^1.0.6",
-    "language-common": "github:openfn/language-common#v0.0.5",
-    "request": "^2.72.0",
-    "soap": "^0.18.0"
+    "language-common": "github:openfn/language-common",
+    "request": "^2.72.0"
   },
   "devDependencies": {
     "assertion-error": "^1.0.1",
