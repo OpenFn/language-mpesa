@@ -1,0 +1,1 @@
+registerListener({a:1});
