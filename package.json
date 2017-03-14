@@ -17,6 +17,7 @@
     "js2xmlparser": "^3.0.0",
     "jshashes": "^1.0.6",
     "language-common": "github:openfn/language-common",
+    "pem": "^1.9.4",
     "request": "^2.72.0"
   },
   "devDependencies": {
