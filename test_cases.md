@@ -6,6 +6,7 @@ Request:
 curl -X GET --header "Authorization: Basic VUlFYmtHYUQ2MnJIQVAyaDBFRlpzVFVOQ1VCSUx3eGU6QjE5anBIYnEzYWVDcVFkUQ==" "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
 ```
 
+Response Headers:
 ```
 HTTP/1.1 200 OK
 Cache-Control: no-store
@@ -15,7 +16,8 @@ Content-Type: application/json;charset=UTF-8
 Date: Tue, 19 Sep 2017 12:21:55 GMT
 Server: Apigee Router
 ```
-Body:
+
+Response Body:
 ```json
 {
   "access_token": "WQEIWJvUqLJfecyvKFsPPjkG4VMv",
