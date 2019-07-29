@@ -1,8 +1,6 @@
-import { execute as commonExecute, expandReferences } from 'language-common';
+import { execute as commonExecute } from 'language-common';
 import request from 'request';
-import { resolve as resolveUrl } from 'url';
 import Hashes from 'jshashes';
-import js2xmlparser from 'js2xmlparser';
 
 /** @module Adaptor */
 
@@ -21,28 +19,25 @@ import js2xmlparser from 'js2xmlparser';
 export function execute(...operations) {
   const initialState = {
     references: [],
-    data: null
-  }
-
-  return state => {
-    return commonExecute(...operations)({ ...initialState, ...state })
+    data: null,
   };
 
+  return state => {
+    return commonExecute(...operations)({ ...initialState, ...state });
+  };
 }
 // #############################################################
 // TODO: Move this into the credential setup page on OpenFn/core
 // #############################################################
 export function registerListener() {
-
   return state => {
-
     const {
       spid,
       password,
       serviceId,
       shortCode,
       listenerUrl,
-      mpesaUrl
+      mpesaUrl,
     } = state.configuration;
 
     function pad(number) {
@@ -52,23 +47,24 @@ export function registerListener() {
       return number;
     }
 
-    const date = new Date()
+    const date = new Date();
     // Ugly way of getting the YYYYMMDDHHmmSS stamp...
-    const timeStamp = date.toISOString()
-                          .replace(/[.,\/#!TZ$%\^&\*;:{}=\-_`~()]/g,"")
-                          .slice(0, 14);
+    const timeStamp = date
+      .toISOString()
+      .replace(/[.,\/#!TZ$%\^&\*;:{}=\-_`~()]/g, '')
+      .slice(0, 14);
 
     console.log('SPID: ' + spid);
     console.log('Password: ' + password);
     console.log('TimeStamp: ' + timeStamp);
-    const authString = spid+password+timeStamp;
+    const authString = spid + password + timeStamp;
     console.log('Pre-encryption auth string: ' + authString);
 
     // new SHA256 instance and base64 string encoding
-    var SHA256 =  new Hashes.SHA256
-    const crypted = SHA256.hex(authString)
+    var SHA256 = new Hashes.SHA256();
+    const crypted = SHA256.hex(authString);
     // output to console
-    console.log('SHA256 crypted auth: ' + crypted)
+    console.log('SHA256 crypted auth: ' + crypted);
 
     const base64crypted = new Buffer(crypted).toString('base64');
     console.log('base64 of the crypted auth: ' + base64crypted);
@@ -134,44 +130,53 @@ export function registerListener() {
                 </request>]]>
             </req:RequestMsg>
         </soapenv:Body>
-    </soapenv:Envelope>`
+    </soapenv:Envelope>`;
 
     function assembleError({ response, error }) {
-      if (response && ([200,201,202].indexOf(response.statusCode) > -1)) return false;
+      if (response && [200, 201, 202].indexOf(response.statusCode) > -1)
+        return false;
       if (error) return error;
-      return new Error(`Server responded with ${response.statusCode}`)
+      return new Error(`Server responded with ${response.statusCode}`);
     }
 
-  if (send) {
-    return new Promise((resolve, reject) => {
-      console.log("Request body:");
-      console.log("\n" + JSON.stringify(body, null, 4) + "\n");
-      request.post ({
-        url: mpesaUrl,
-        body: body
-      }, function(error, response, body){
-        error = assembleError({error, response})
-        if(error) {
-          reject(error);
-          console.log(response);
-        } else {
-          console.log("Printing response...\n");
-          console.log(JSON.stringify(response, null, 4) + "\n");
-          console.log("POST succeeded.");
-          resolve(body);
-        }
-      })
-    }).then((data) => {
-      const nextState = { ...state, response: { body: data } };
-      return nextState;
-    })
-  }
-
-  }
-
-};
+    if (send) {
+      return new Promise((resolve, reject) => {
+        console.log('Request body:');
+        console.log('\n' + JSON.stringify(body, null, 4) + '\n');
+        request.post(
+          {
+            url: mpesaUrl,
+            body: body,
+          },
+          function(error, response, body) {
+            error = assembleError({ error, response });
+            if (error) {
+              reject(error);
+              console.log(response);
+            } else {
+              console.log('Printing response...\n');
+              console.log(JSON.stringify(response, null, 4) + '\n');
+              console.log('POST succeeded.');
+              resolve(body);
+            }
+          }
+        );
+      }).then(data => {
+        const nextState = { ...state, response: { body: data } };
+        return nextState;
+      });
+    }
+  };
+}
 
 export {
-  field, fields, sourceValue, alterState, each,
-  merge, dataPath, dataValue, lastReferenceValue
+  field,
+  fields,
+  sourceValue,
+  alterState,
+  each,
+  merge,
+  dataPath,
+  dataValue,
+  lastReferenceValue,
 } from 'language-common';
