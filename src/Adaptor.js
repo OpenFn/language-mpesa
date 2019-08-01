@@ -1,5 +1,9 @@
 import { execute as commonExecute } from 'language-common';
+import crypto from 'crypto';
+import { RSA_PKCS1_PADDING } from 'constants';
 import request from 'request';
+import fs from 'fs';
+import path from 'path';
 
 /** @module Adaptor */
 
@@ -71,10 +75,60 @@ function getToken(state) {
   });
 }
 
-export function requestPayment() {
-  console.log('Coming soon...');
+function security(certPath, shortCodeSecurityCredential) {
+  const bufferToEncrypt = Buffer.from(shortCodeSecurityCredential);
+  const data = fs.readFileSync(path.resolve(certPath));
+  const privateKey = String(data);
+  const encrypted = crypto.publicEncrypt(
+    {
+      key: privateKey,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
+    },
+    bufferToEncrypt
+  );
+  const securityCredential = encrypted.toString('base64');
+  return securityCredential;
+}
+
+export function requestPayment(params) {
   return state => {
-    return state;
+    const {
+      hostUrl,
+      oAuth,
+      shortCode,
+      listenerUrl,
+      username,
+      password,
+    } = state.configuration;
+
+    const url = `${hostUrl}/mpesa/b2c/v1/paymentrequest`;
+    const auth = { bearer: oAuth.access_token };
+    const certPath = './cert.cer.sandbox';
+
+    const json = {
+      InitiatorName: username,
+      SecurityCredential: security(certPath, password),
+      PartyA: shortCode,
+      QueueTimeOutURL: listenerUrl, // The timeout end-point that receives a timeout.
+      ResultURL: listenerUrl, // The end-point that receives the response of the transaction.
+      ...params,
+    };
+
+    return new Promise((resolve, reject) => {
+      request.post({ url, auth, json }, (error, response, body) => {
+        error = assembleError({ error, response });
+        if (error) {
+          reject(error);
+          console.log(body);
+        } else {
+          console.log(JSON.stringify(response, null, 4) + '\n');
+          resolve(body);
+        }
+      });
+    }).then(data => {
+      const nextState = { ...state, response: { body: data } };
+      return nextState;
+    });
   };
 }
 
@@ -85,7 +139,6 @@ export function requestPayment() {
 export function registerUrl(notificationUrl) {
   return state => {
     const { hostUrl, oAuth, shortCode } = state.configuration;
-
     const url = `${hostUrl}/mpesa/c2b/v1/registerurl`;
     const auth = { bearer: oAuth.access_token };
     const json = {
@@ -94,7 +147,7 @@ export function registerUrl(notificationUrl) {
       ConfirmationURL: notificationUrl,
       ValidationURL: notificationUrl,
     };
-    
+
     return new Promise((resolve, reject) => {
       request.post({ url, auth, json }, (error, response, body) => {
         error = assembleError({ error, response });
@@ -102,7 +155,10 @@ export function registerUrl(notificationUrl) {
           reject(error);
           console.log(body);
         } else {
-          console.log(`Registered \"${notificationUrl}\" as listener URL for organization shortcode ${shortCode}.`);
+          console.log(
+            `Registered \"${notificationUrl}\" as listener URL for organization
+            shortcode ${shortCode}.`
+          );
           console.log(JSON.stringify(response, null, 4) + '\n');
           resolve(body);
         }
