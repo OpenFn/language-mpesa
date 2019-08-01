@@ -1,6 +1,5 @@
 import { execute as commonExecute } from 'language-common';
 import request from 'request';
-import Hashes from 'jshashes';
 
 /** @module Adaptor */
 
@@ -23,149 +22,95 @@ export function execute(...operations) {
   };
 
   return state => {
-    return commonExecute(...operations)({ ...initialState, ...state });
+    return commonExecute(getToken, ...operations)({
+      ...initialState,
+      ...state,
+    });
   };
 }
-// #############################################################
-// TODO: Move this into the credential setup page on OpenFn/core
-// #############################################################
-export function registerListener() {
-  return state => {
-    const {
-      spid,
-      password,
-      serviceId,
-      shortCode,
-      listenerUrl,
-      mpesaUrl,
-    } = state.configuration;
 
-    function pad(number) {
-      if (number < 10) {
-        return '0' + number;
+function assembleError({ response, error }) {
+  if (response && [200, 201, 202].indexOf(response.statusCode) > -1)
+    return false;
+  if (error) return error;
+  return new Error(`Server responded with ${response.statusCode}`);
+}
+
+/**
+ * Gets an Oauth token for a session.
+ * @example
+ *  getToken(state)
+ * @function
+ * @param {State} state - Runtime state.
+ * @returns {State}
+ */
+function getToken(state) {
+  const { consumerKey, consumerSecret, hostUrl } = state.configuration;
+  const url = `${hostUrl}/oauth/v1/generate`;
+  const qs = { grant_type: 'client_credentials' };
+  const auth = { user: consumerKey, pass: consumerSecret };
+
+  return new Promise((resolve, reject) => {
+    request.get({ url, auth, qs }, (error, response, body) => {
+      error = assembleError({ error, response });
+      if (error) {
+        reject(error);
+        console.log(response);
+      } else {
+        console.log('Authentication succeeded.');
+        console.log(JSON.parse(body));
+        resolve(JSON.parse(body));
       }
-      return number;
-    }
+    });
+  }).then(data => {
+    const nextState = {
+      ...state,
+      configuration: { ...state.configuration, oAuth: data },
+    };
+    return nextState;
+  });
+}
 
-    const date = new Date();
-    // Ugly way of getting the YYYYMMDDHHmmSS stamp...
-    const timeStamp = date
-      .toISOString()
-      .replace(/[.,\/#!TZ$%\^&\*;:{}=\-_`~()]/g, '')
-      .slice(0, 14);
+export function requestPayment() {
+  console.log('Coming soon...');
+  return state => {
+    return state;
+  };
+}
 
-    console.log('SPID: ' + spid);
-    console.log('Password: ' + password);
-    console.log('TimeStamp: ' + timeStamp);
-    const authString = spid + password + timeStamp;
-    console.log('Pre-encryption auth string: ' + authString);
+// #############################################################################
+// NOTE: This could be done outside platform. Maybe it's CLI only as part of
+// project setup, or maybe it's done during credential creation?
+// #############################################################################
+export function registerUrl(notificationUrl) {
+  return state => {
+    const { hostUrl, oAuth, shortCode } = state.configuration;
 
-    // new SHA256 instance and base64 string encoding
-    var SHA256 = new Hashes.SHA256();
-    const crypted = SHA256.hex(authString);
-    // output to console
-    console.log('SHA256 crypted auth: ' + crypted);
-
-    const base64crypted = new Buffer(crypted).toString('base64');
-    console.log('base64 of the crypted auth: ' + base64crypted);
-
-    // const send = false;
-    const send = true;
-
-    const body = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:req="http://api-v1.gen.mm.vodafone.com/mminterface/request">
-        <soapenv:Header>
-            <tns:RequestSOAPHeader xmlns:tns="http://www.huawei.com/schema/osg/common/v2_1">
-                <tns:spId>${spid}</tns:spId>
-                <tns:spPassword>${base64crypted}</tns:spPassword>
-                <tns:timeStamp>${timeStamp}</tns:timeStamp>
-                <tns:serviceId>${serviceId}</tns:serviceId>
-            </tns:RequestSOAPHeader>
-        </soapenv:Header>
-        <soapenv:Body>
-            <req:RequestMsg>
-                <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-                <request xmlns="http://api-v1.gen.mm.vodafone.com/mminterface/request">
-                <Transaction>
-                <CommandID>RegisterURL</CommandID>
-                <OriginatorConversationID>Reg-266-1126</OriginatorConversationID>
-                every new request
-                <Parameters>
-                <Parameter>
-                <Key>ResponseType</Key>
-                <Value>Completed</Value>
-                </Parameter>
-                </Parameters>
-                <ReferenceData>
-                <ReferenceItem>
-                <Key>ValidationURL</Key>
-                <Value>http://10.66.49.201:8099/mock%3C/Value%3E</Value>
-                </ReferenceItem>
-                <ReferenceItem>
-                <Key>ConfirmationURL</Key>
-                <Value>${listenerUrl}</Value>
-                </ReferenceItem>
-                </ReferenceData>
-                </Transaction>
-                <Identity>
-                <Caller>
-                <CallerType>0</CallerType>
-                <ThirdPartyID/>
-                <Password/>
-                <CheckSum/>
-                <ResultURL/>
-                </Caller>
-                <Initiator>
-                <IdentifierType>1</IdentifierType>
-                <Identifier/>
-                <SecurityCredential/>
-                <ShortCode/>
-                </Initiator>
-                <PrimaryParty>
-                <IdentifierType>1</IdentifierType>
-                <Identifier/>
-                <ShortCode>${shortCode}</ShortCode>
-                </PrimaryParty>
-                </Identity>
-                <KeyOwner>1</KeyOwner>
-                </request>]]>
-            </req:RequestMsg>
-        </soapenv:Body>
-    </soapenv:Envelope>`;
-
-    function assembleError({ response, error }) {
-      if (response && [200, 201, 202].indexOf(response.statusCode) > -1)
-        return false;
-      if (error) return error;
-      return new Error(`Server responded with ${response.statusCode}`);
-    }
-
-    if (send) {
-      return new Promise((resolve, reject) => {
-        console.log('Request body:');
-        console.log('\n' + JSON.stringify(body, null, 4) + '\n');
-        request.post(
-          {
-            url: mpesaUrl,
-            body: body,
-          },
-          function(error, response, body) {
-            error = assembleError({ error, response });
-            if (error) {
-              reject(error);
-              console.log(response);
-            } else {
-              console.log('Printing response...\n');
-              console.log(JSON.stringify(response, null, 4) + '\n');
-              console.log('POST succeeded.');
-              resolve(body);
-            }
-          }
-        );
-      }).then(data => {
-        const nextState = { ...state, response: { body: data } };
-        return nextState;
+    const url = `${hostUrl}/mpesa/c2b/v1/registerurl`;
+    const auth = { bearer: oAuth.access_token };
+    const json = {
+      ShortCode: shortCode,
+      ResponseType: 'Completed',
+      ConfirmationURL: notificationUrl,
+      ValidationURL: notificationUrl,
+    };
+    
+    return new Promise((resolve, reject) => {
+      request.post({ url, auth, json }, (error, response, body) => {
+        error = assembleError({ error, response });
+        if (error) {
+          reject(error);
+          console.log(body);
+        } else {
+          console.log(`Registered \"${notificationUrl}\" as listener URL for organization shortcode ${shortCode}.`);
+          console.log(JSON.stringify(response, null, 4) + '\n');
+          resolve(body);
+        }
       });
-    }
+    }).then(data => {
+      const nextState = { ...state, response: { body: data } };
+      return nextState;
+    });
   };
 }
 
